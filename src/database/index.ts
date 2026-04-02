@@ -2,17 +2,29 @@ import sqlite3 from 'sqlite3';
 import { promisify } from 'util';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import fs from 'fs';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-const dbPath = path.join(__dirname, '../../data/database.sqlite');
+// Use /tmp for Render.com (writable), fallback to local data folder
+const dbPath = process.env.RENDER
+  ? '/tmp/database.sqlite'
+  : path.join(__dirname, '../../data/database.sqlite');
+
+// Ensure data directory exists for local development
+if (!process.env.RENDER) {
+  const dataDir = path.join(__dirname, '../../data');
+  if (!fs.existsSync(dataDir)) {
+    fs.mkdirSync(dataDir, { recursive: true });
+  }
+}
 
 export const db = new sqlite3.Database(dbPath, (err) => {
   if (err) {
     console.error('Error opening database:', err);
   } else {
-    console.log('Connected to SQLite database');
+    console.log('Connected to SQLite database at:', dbPath);
   }
 });
 
