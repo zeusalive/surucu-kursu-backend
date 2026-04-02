@@ -16,9 +16,42 @@ export const db = new sqlite3.Database(dbPath, (err) => {
   }
 });
 
-export const dbRun = promisify(db.run.bind(db));
-export const dbGet = promisify(db.get.bind(db));
-export const dbAll = promisify(db.all.bind(db));
+// Properly typed database helper functions
+export const dbRun = (sql: string, params?: any[]): Promise<{ lastID: number; changes: number }> => {
+  return new Promise((resolve, reject) => {
+    db.run(sql, params || [], function(err) {
+      if (err) {
+        reject(err);
+      } else {
+        resolve({ lastID: this.lastID, changes: this.changes });
+      }
+    });
+  });
+};
+
+export const dbGet = <T = any>(sql: string, params?: any[]): Promise<T | undefined> => {
+  return new Promise((resolve, reject) => {
+    db.get(sql, params || [], (err, row) => {
+      if (err) {
+        reject(err);
+      } else {
+        resolve(row as T | undefined);
+      }
+    });
+  });
+};
+
+export const dbAll = <T = any>(sql: string, params?: any[]): Promise<T[]> => {
+  return new Promise((resolve, reject) => {
+    db.all(sql, params || [], (err, rows) => {
+      if (err) {
+        reject(err);
+      } else {
+        resolve(rows as T[]);
+      }
+    });
+  });
+};
 
 export function initializeDatabase(): void {
   db.serialize(() => {

@@ -60,11 +60,3 @@ export interface Booking {
   notes?: string;
   createdAt: string;
 }
-
-export interface AuthRequest extends Request {
-  user?: {
-    id: number;
-    email: string;
-    role: string;
-  };
-}
