@@ -1,4 +1,4 @@
-import { Router } from 'express';
+import { Router, Request, Response } from 'express';
 import { dbGet, dbAll, dbRun } from '../database/index.js';
 import { authenticateToken, authorizeRoles, AuthRequest } from '../middleware/auth.js';
 import { z } from 'zod';
@@ -6,7 +6,7 @@ import { z } from 'zod';
 const router = Router();
 
 // Get all users (Admin only)
-router.get('/', authenticateToken, authorizeRoles('admin'), async (req, res) => {
+router.get('/', authenticateToken, authorizeRoles('admin'), async (req: AuthRequest, res: Response) => {
   try {
     const users = await dbAll(
       'SELECT id, email, firstName, lastName, phone, role, createdAt FROM users ORDER BY createdAt DESC'
@@ -18,7 +18,7 @@ router.get('/', authenticateToken, authorizeRoles('admin'), async (req, res) => 
 });
 
 // Get user by ID
-router.get('/:id', authenticateToken, async (req, res) => {
+router.get('/:id', authenticateToken, async (req: AuthRequest, res: Response) => {
   try {
     const userId = parseInt(req.params.id);
     
@@ -52,7 +52,7 @@ router.get('/:id', authenticateToken, async (req, res) => {
 });
 
 // Update user
-router.put('/:id', authenticateToken, async (req, res) => {
+router.put('/:id', authenticateToken, async (req: AuthRequest, res: Response) => {
   try {
     const userId = parseInt(req.params.id);
     
@@ -74,7 +74,7 @@ router.put('/:id', authenticateToken, async (req, res) => {
 });
 
 // Delete user (Admin only)
-router.delete('/:id', authenticateToken, authorizeRoles('admin'), async (req, res) => {
+router.delete('/:id', authenticateToken, authorizeRoles('admin'), async (req: AuthRequest, res: Response) => {
   try {
     const userId = parseInt(req.params.id);
     

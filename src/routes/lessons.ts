@@ -1,4 +1,4 @@
-import { Router } from 'express';
+import { Router, Request, Response } from 'express';
 import { dbGet, dbAll, dbRun } from '../database/index.js';
 import { authenticateToken, authorizeRoles, AuthRequest } from '../middleware/auth.js';
 import { z } from 'zod';
@@ -17,7 +17,7 @@ const lessonSchema = z.object({
 });
 
 // Get all lessons
-router.get('/', authenticateToken, async (req, res) => {
+router.get('/', authenticateToken, async (req: AuthRequest, res: Response) => {
   try {
     const { date, instructorId, type } = req.query;
     let query = `
@@ -59,7 +59,7 @@ router.get('/', authenticateToken, async (req, res) => {
 });
 
 // Create lesson (Admin and Instructor)
-router.post('/', authenticateToken, authorizeRoles('admin', 'instructor'), async (req, res) => {
+router.post('/', authenticateToken, authorizeRoles('admin', 'instructor'), async (req: AuthRequest, res: Response) => {
   try {
     const lessonData = lessonSchema.parse(req.body);
     
@@ -93,7 +93,7 @@ router.post('/', authenticateToken, authorizeRoles('admin', 'instructor'), async
 });
 
 // Update lesson
-router.put('/:id', authenticateToken, authorizeRoles('admin', 'instructor'), async (req, res) => {
+router.put('/:id', authenticateToken, authorizeRoles('admin', 'instructor'), async (req: AuthRequest, res: Response) => {
   try {
     const lessonId = parseInt(req.params.id);
     const { date, startTime, endTime, status, location, notes } = req.body;
@@ -120,7 +120,7 @@ router.put('/:id', authenticateToken, authorizeRoles('admin', 'instructor'), asy
 });
 
 // Delete lesson
-router.delete('/:id', authenticateToken, authorizeRoles('admin', 'instructor'), async (req, res) => {
+router.delete('/:id', authenticateToken, authorizeRoles('admin', 'instructor'), async (req: AuthRequest, res: Response) => {
   try {
     const lessonId = parseInt(req.params.id);
 

@@ -1,11 +1,11 @@
-import { Router } from 'express';
+import { Router, Request, Response } from 'express';
 import { dbGet, dbAll, dbRun } from '../database/index.js';
-import { authenticateToken, authorizeRoles } from '../middleware/auth.js';
+import { authenticateToken, authorizeRoles, AuthRequest } from '../middleware/auth.js';
 
 const router = Router();
 
 // Get all instructors
-router.get('/', authenticateToken, async (req, res) => {
+router.get('/', authenticateToken, async (req: AuthRequest, res: Response) => {
   try {
     const instructors = await dbAll(`
       SELECT u.id, u.email, u.firstName, u.lastName, u.phone, u.createdAt,
@@ -22,7 +22,7 @@ router.get('/', authenticateToken, async (req, res) => {
 });
 
 // Get instructor by ID with schedule
-router.get('/:id', authenticateToken, async (req, res) => {
+router.get('/:id', authenticateToken, async (req: AuthRequest, res: Response) => {
   try {
     const instructorId = parseInt(req.params.id);
 
@@ -45,16 +45,16 @@ router.get('/:id', authenticateToken, async (req, res) => {
       ORDER BY date, startTime
     `, [instructorId]);
 
-    instructor.schedule = lessons;
+    const result = { ...instructor, schedule: lessons };
 
-    res.json(instructor);
+    res.json(result);
   } catch (error) {
     res.status(500).json({ error: 'Server error' });
   }
 });
 
 // Update instructor info (Admin only)
-router.put('/:id', authenticateToken, authorizeRoles('admin'), async (req, res) => {
+router.put('/:id', authenticateToken, authorizeRoles('admin'), async (req: AuthRequest, res: Response) => {
   try {
     const instructorId = parseInt(req.params.id);
     const { licenseNumber, specialization, experience, bio, isActive } = req.body;

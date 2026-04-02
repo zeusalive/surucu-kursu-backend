@@ -1,11 +1,11 @@
-import { Router } from 'express';
+import { Router, Request, Response } from 'express';
 import { dbGet, dbAll, dbRun } from '../database/index.js';
 import { authenticateToken, authorizeRoles, AuthRequest } from '../middleware/auth.js';
 
 const router = Router();
 
 // Get all bookings
-router.get('/', authenticateToken, async (req, res) => {
+router.get('/', authenticateToken, async (req: AuthRequest, res: Response) => {
   try {
     const { studentId, lessonId } = req.query;
     let query = `
@@ -52,7 +52,7 @@ router.get('/', authenticateToken, async (req, res) => {
 });
 
 // Create booking (Students only)
-router.post('/', authenticateToken, authorizeRoles('student'), async (req, res) => {
+router.post('/', authenticateToken, authorizeRoles('student'), async (req: AuthRequest, res: Response) => {
   try {
     const { lessonId, notes } = req.body;
     const studentId = req.user!.id;
@@ -102,7 +102,7 @@ router.post('/', authenticateToken, authorizeRoles('student'), async (req, res) 
 });
 
 // Cancel booking (Students can cancel their own, admins can cancel any)
-router.put('/:id/cancel', authenticateToken, async (req, res) => {
+router.put('/:id/cancel', authenticateToken, async (req: AuthRequest, res: Response) => {
   try {
     const bookingId = parseInt(req.params.id);
     
@@ -128,7 +128,7 @@ router.put('/:id/cancel', authenticateToken, async (req, res) => {
 });
 
 // Update booking status (Admin and Instructors)
-router.put('/:id/status', authenticateToken, authorizeRoles('admin', 'instructor'), async (req, res) => {
+router.put('/:id/status', authenticateToken, authorizeRoles('admin', 'instructor'), async (req: AuthRequest, res: Response) => {
   try {
     const bookingId = parseInt(req.params.id);
     const { status } = req.body;
